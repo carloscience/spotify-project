@@ -1,0 +1,6 @@
+{
+    "require": {
+        "silex/silex": "~2.0",
+        "jwilsson/spotify-web-api-php": "^1.0.0"
+    }
+}
