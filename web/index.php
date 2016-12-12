@@ -27,61 +27,51 @@ $app->get('/', function() {
 <body>
   <div id="search-artists"></div>
   <div id="artists-list"></div>
-  <!--<label>Artist:</label>
-  <input class="search" type="text"></input>
-  <button type="submit">Search</button>
-  <ul class="artists"></ul>-->
-  <!--script type="text/javascript">
-    $(document).ready(function() {
-      $('button').on('click', function(e) {
-        $('.artists').empty();
-        var query = $('.search').val();
-        $.getJSON('/search?name=' + query, function(data) {
-          data.artists.map(function(artist) {
-            $('.artists').append('<li><a id="' + artist.id + '" href="#">' + artist.name + '</a> ' + artist.genres + '</li>');
-          });
-          $('a').on('click', function(e) {
-            e.preventDefault();
-            var artist_id = $(this).attr('id');
-            $.getJSON('/artist?id=' + artist_id, function(data) {
-              console.log(data);
-            });
-          });
-        });
-      });
-    });
-  </script>-->
   <script type="text/jsx">
   
   class SearchArtists extends React.Component {
-    render() {
-        return(<div>
-                <label>Artist:</label>
-                <input className="search" type="text"></input>
-                <button type="submit">Search</button>
-                <ul className="artists"></ul>
-              </div>);
-    }
-  }
-
-  class ShowArtists extends React.Component {
 
     constructor() {
       super();
       this.state = {
-        showArtists: false
-      };
+        artists: []
+      }
     }
-  
-    render() {
-      let artistList = [];
 
-      return (
-        <div>
-          <ul>
-            {artistList.map( atist => <li>{artist}</li>)}
-          </ul>
-      )
+    render() {
+
+        if(this.state.artists.length > 0){
+          var view = (<div>
+            <ul>
+              {this.state.artists.map( artist => <li key={artist.id}><a id="{artist.id}" href="#">{artist.name}</a></li>)}
+            </ul>
+          </div>)
+        }
+
+        return(<div>
+                <label>Artist:</label>
+                <input className="search" type="text"></input>
+                <button onClick={this._handleClick.bind(this)} type="submit">Search</button>
+                {view}
+              </div>);
+    }
+
+    _handleClick(event) {
+      event.preventDefault();
+      $('.artists').empty();
+      var query = $('.search').val();
+      var _this = this;
+      $.getJSON('/search?name=' + query, function(data) {
+        var artistList = data.artists;
+        _this.setState({"artists":artistList});
+        return (
+          <div>
+            <ul>
+              {artistList.map( artist => <li key={artist.id}><a id={artist.id} href="#">{artist.name}</a></li>)}
+            </ul>
+          </div>
+        );
+      });
     }
   }
 
@@ -96,22 +86,6 @@ $app->get('/', function() {
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
-/*
-$app->post('/search', function (Request $request, Silex\Application $app) {  
-  $api = new SpotifyWebAPI\SpotifyWebAPI();
-
-  $results = $api->search('cash', 'artist');
-
-  $artist_list = [];
-
-  foreach ($results->artists->items as $artist) {
-      array_push($artist_list, $artist->name);
-  }
-
-  return $app->json(array('artists' => $artist_list), 200);
-});
-*/
 
 $app->get('/artist', function(Request $request, Silex\Application $app) {
   $api = new SpotifyWebAPI\SpotifyWebAPI();
